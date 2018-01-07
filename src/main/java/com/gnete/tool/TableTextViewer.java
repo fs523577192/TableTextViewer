@@ -119,7 +119,7 @@ public final class TableTextViewer {
                     continue;
                 }
                 if (maxLengths.get(i) < row[i].length()) {
-                    maxLengths.set(i, row[i].length());
+                    maxLengths.set(i, showLength(row[i]));
                 }
             }
         }
