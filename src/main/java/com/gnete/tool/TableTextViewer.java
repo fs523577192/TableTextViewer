@@ -10,7 +10,8 @@ public class TableTextViewer {
             return;
         }
 
-        Properties properties = parseConfigFile(args[0]);
+        Properties properties = parseConfigFile(args[0],
+				args.length >= 2 ? args[1] : null);
         if (null == properties) {
             return;
         }
@@ -31,18 +32,28 @@ public class TableTextViewer {
     private static boolean validateArguments(String[] args) {
         if (args.length < 1) {
             System.out.println("Usage:");
-            System.out.println("  java -jar TableTextViewer.jar config_file");
+            System.out.println("1. java -jar TableTextViewer.jar config_file");
+            System.out.println("2. java -jar TableTextViewer.jar config_file config_charset");
             return false;
         }
         return true;
     }
 
-    private static Properties parseConfigFile(String configFile) {
+    private static Properties parseConfigFile(
+			String configFile,
+			String configCharset
+	) {
         try {
             Properties properties = new Properties();
             FileInputStream inputStream = new FileInputStream(configFile);
-            properties.load(inputStream);
-            inputStream.close();
+			Reader reader;
+			if (null == configCharset) {
+				reader = new InputStreamReader(inputStream);
+			} else {
+				reader = new InputStreamReader(inputStream, configCharset);
+			}
+			properties.load(reader);
+            reader.close();
             return properties;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -75,12 +86,18 @@ public class TableTextViewer {
             String inputSeperator
     ) {
         try {
-            Scanner scanner = new Scanner(new File(inputFile), inputCharset);
+            Scanner scanner;
+            if (null == inputCharset) {
+                scanner  = new Scanner(new File(inputFile));
+            } else {
+                scanner = new Scanner(new File(inputFile), inputCharset);
+            }
             List<String[]> table = new ArrayList<String[]>();
             while (scanner.hasNextLine()) {
                 String temp = scanner.nextLine();
                 table.add(temp.split(inputSeperator));
             }
+            scanner.close();
             return table;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -116,7 +133,11 @@ public class TableTextViewer {
     ) {
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter(outputFile, outputCharset);
+            if (null == outputCharset) {
+                writer = new PrintWriter(outputFile);
+            } else {
+                writer = new PrintWriter(outputFile, outputCharset);
+            }
             for (String[] row : table) {
                 for (int i = 0; i < maxLengths.size(); i += 1) {
                     StringBuilder buffer = new StringBuilder();
@@ -128,8 +149,9 @@ public class TableTextViewer {
                         buffer.append(' ');
                     }
                     buffer.append(outputSeperator);
-                    writer.println(buffer.toString());
+                    writer.print(buffer.toString());
                 }
+                writer.println();
             }
         } catch (Exception ex) {
             ex.printStackTrace();
