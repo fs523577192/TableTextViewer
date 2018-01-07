@@ -3,14 +3,16 @@ package com.gnete.tool;
 import java.io.*;
 import java.util.*;
 
-public class TableTextViewer {
+public final class TableTextViewer {
 
-    public static void main(String[] args) {
+    private TableTextViewer() {}
+
+    public static void main(final String[] args) {
         if (!validateArguments(args)) {
             return;
         }
 
-        Properties properties = parseConfigFile(args[0],
+        final Properties properties = parseConfigFile(args[0],
 				args.length >= 2 ? args[1] : null);
         if (null == properties) {
             return;
@@ -19,9 +21,9 @@ public class TableTextViewer {
         String inputFile = properties.getProperty("inputFile");
         String inputCharset = properties.getProperty("inputCharset");
         String inputSeperator = properties.getProperty("inputSeperator");
-        List<String[]> table = readInput(
+        final List<String[]> table = readInput(
                 inputFile, inputCharset, inputSeperator);
-        List<Integer> maxLengths = getFieldMaxLength(table);
+        final List<Integer> maxLengths = getFieldMaxLength(table);
 
         String outputFile = properties.getProperty("outputFile");
         String outputCharset = properties.getProperty("outputCharset");
@@ -29,7 +31,7 @@ public class TableTextViewer {
         output(table, maxLengths, outputFile, outputCharset, outputSeperator);
     }
 
-    private static boolean validateArguments(String[] args) {
+    private static boolean validateArguments(final String[] args) {
         if (args.length < 1) {
             System.out.println("Usage:");
             System.out.println("1. java -jar TableTextViewer.jar config_file");
@@ -40,11 +42,11 @@ public class TableTextViewer {
     }
 
     private static Properties parseConfigFile(
-			String configFile,
-			String configCharset
+			final String configFile,
+			final String configCharset
 	) {
         try {
-            Properties properties = new Properties();
+            final Properties properties = new Properties();
             FileInputStream inputStream = new FileInputStream(configFile);
 			Reader reader;
 			if (null == configCharset) {
@@ -61,15 +63,15 @@ public class TableTextViewer {
         }
     }
 
-    private static int showLength(String str) {
+    private static int showLength(final CharSequence str) {
         int result = 0;
         for (int i = str.length(); i > 0; ) {
             i -= 1;
-            char c = str.charAt(i);
+            final char c = str.charAt(i);
             if (' ' <= c && c <= '~') {
                 result += 1;
             } else if ('\t' == c) {
-                int temp = result & (4 - 1);
+                final int temp = result & (4 - 1);
                 if (temp > 0) {
                     result += 4 - temp;
                 }
@@ -81,9 +83,9 @@ public class TableTextViewer {
     }
 
     private static List<String[]> readInput(
-            String inputFile,
-            String inputCharset,
-            String inputSeperator
+            final String inputFile,
+            final String inputCharset,
+            final String inputSeperator
     ) {
         try {
             Scanner scanner;
@@ -94,7 +96,7 @@ public class TableTextViewer {
             }
             List<String[]> table = new ArrayList<String[]>();
             while (scanner.hasNextLine()) {
-                String temp = scanner.nextLine();
+                final String temp = scanner.nextLine();
                 table.add(temp.split(inputSeperator));
             }
             scanner.close();
@@ -106,7 +108,7 @@ public class TableTextViewer {
     }
 
     private static List<Integer> getFieldMaxLength(List<String[]> table) {
-        List<Integer> maxLengths = new ArrayList<Integer>();
+        final List<Integer> maxLengths = new ArrayList<Integer>();
         for (String[] row : table) {
             for (int i = row.length - maxLengths.size(); i > 0; i -= 1) {
                 maxLengths.add(0);
@@ -125,11 +127,11 @@ public class TableTextViewer {
     }
 
     private static void output(
-            List<String[]> table,
-            List<Integer> maxLengths,
-            String outputFile,
-            String outputCharset,
-            String outputSeperator
+            final List<String[]> table,
+            final List<Integer> maxLengths,
+            final String outputFile,
+            final String outputCharset,
+            final String outputSeperator
     ) {
         PrintWriter writer = null;
         try {
@@ -140,11 +142,11 @@ public class TableTextViewer {
             }
             for (String[] row : table) {
                 for (int i = 0; i < maxLengths.size(); i += 1) {
-                    StringBuilder buffer = new StringBuilder();
+                    final StringBuilder buffer = new StringBuilder();
                     if (row.length > i && null != row[i]) {
                         buffer.append(row[i]);
                     }
-                    for (int j = maxLengths.get(i) - buffer.length();
+                    for (int j = maxLengths.get(i) - showLength(buffer);
                             j > 0; j -= 1) {
                         buffer.append(' ');
                     }
